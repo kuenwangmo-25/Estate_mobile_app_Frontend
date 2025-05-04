@@ -10,20 +10,32 @@ import {
 import Icon from 'react-native-vector-icons/FontAwesome';
 import FormContainer from '../Shared/FormContainer';
 import Input from '../Shared/Input';
+import baseURL from '../assets/common/baseUrl';
+import axios from "axios";
 
-const RegisterScreen = ({ navigation }) => {
-  const [email, setEmail] = useState('');
-  const [error, setError] = useState('');
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     if (email.trim() === '') {
       setError('Please enter your email');
       return;
     }
 
-    setError('');
-    navigation.navigate('OTP');
-  };
+    try {
+      const response = await axios.post(`${baseURL}/register`, { email });
+
+      if (response.data.status === "success") {
+        setError('');
+        navigation.navigate('OTP', { email }); // pass email to OTP screen
+      } else {
+        setError(response.data.message || 'Something went wrong');
+      }
+    } catch (error) {
+      const message =
+        error.response?.data?.message || 'Failed to send OTP. Try again.';
+      setError(message);
+    }
+  
+
 
   return (
     <ScrollView contentContainerStyle={styles.container}>

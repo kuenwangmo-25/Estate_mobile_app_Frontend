@@ -10,18 +10,49 @@ import {
 import Icon from 'react-native-vector-icons/FontAwesome5'; // Import FontAwesome5
 import FormContainer from '../Shared/FormContainer';
 import Input from '../Shared/Input';
+import baseURL from '../assets/common/baseUrl';
+import axios from 'axios';
 
-const OTPConfirmScreen = ({ navigation }) => {
+
+const OTPConfirmScreen = ({ navigation, route }) => {
   const [otp, setOTP] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleConfirm = () => {
+  const email = route.params?.email;
+
+  const handleConfirm = async () => {
     if (otp.trim() === '') {
       setError('Please enter the OTP');
-      setTimeout(() => setError(''), 1000); // Clear the error after 1 second
+      setTimeout(() => setError(''), 1000);
       return;
     }
-    navigation.navigate('Home');
+
+    setLoading(true);
+
+    try {
+      const response = await axios.post(`${baseURL}/users/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, otp }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        navigation.navigate('Home');
+      } else {
+        setError(data.message || 'OTP verification failed');
+        setTimeout(() => setError(''), 2000);
+      }
+    } catch (err) {
+      Alert.alert('Network Error', 'Could not connect to the server.');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
