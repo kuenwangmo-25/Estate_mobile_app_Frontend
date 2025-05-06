@@ -10,6 +10,7 @@ import {
 import Icon from 'react-native-vector-icons/FontAwesome5'; // Import FontAwesome5
 import FormContainer from '../Shared/FormContainer';
 import Input from '../Shared/Input';
+import baseURL from '../assets/common/baseUrl';
 
 const ConfirmPassword = ({ navigation }) => {
   const [password, setPassword] = useState('');

@@ -1,12 +1,17 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native'; // Import NavigationContainer
-import AppNavigator from './Navigation/AppNavigator'
+import { NavigationContainer } from '@react-navigation/native';
+import AppNavigator from './Navigation/AppNavigator';
+import Toast from 'react-native-toast-message';
+import Auth from './Context/store/Auth'; // ✅ import Auth provider
 
 const App = () => {
   return (
-    <NavigationContainer>
-      <AppNavigator /> 
-    </NavigationContainer>
+    <Auth> 
+      <NavigationContainer>
+        <AppNavigator />
+        <Toast />
+      </NavigationContainer>
+    </Auth>
   );
 };
 

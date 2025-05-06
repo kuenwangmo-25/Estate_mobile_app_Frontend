@@ -10,51 +10,56 @@ import {
 import Icon from 'react-native-vector-icons/FontAwesome5'; // Import FontAwesome5
 import FormContainer from '../Shared/FormContainer';
 import Input from '../Shared/Input';
-import baseURL from '../assets/common/baseUrl';
+import Toast from 'react-native-toast-message'; // Make sure this is imported at the top
 import axios from 'axios';
-
+import baseURL from '../assets/common/baseUrl';
 
 const OTPConfirmScreen = ({ navigation, route }) => {
   const [otp, setOTP] = useState('');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const email = route.params?.email;
+  const { email } = route.params; // Get the email passed from RegisterScreen
 
   const handleConfirm = async () => {
     if (otp.trim() === '') {
       setError('Please enter the OTP');
+      Toast.show({
+        type: 'error',
+        text1: 'Missing OTP',
+        text2: 'Please enter the OTP',
+      });
       setTimeout(() => setError(''), 1000);
       return;
     }
 
-    setLoading(true);
-
     try {
-      const response = await axios.post(`${baseURL}/users/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, otp }),
+      const response = await axios.post(`${baseURL}/register`, {
+        email,
+        otp,
       });
 
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        navigation.navigate('Home');
+      if (response.data.status === 'success') {
+        Toast.show({
+          type: 'success',
+          text1: 'OTP Verified',
+          text2: 'Welcome!',
+        });
+        navigation.navigate('Login');
       } else {
-        setError(data.message || 'OTP verification failed');
-        setTimeout(() => setError(''), 2000);
+        Toast.show({
+          type: 'error',
+          text1: 'Invalid OTP',
+          text2: response.data.message || 'Please try again',
+        });
       }
     } catch (err) {
-      Alert.alert('Network Error', 'Could not connect to the server.');
       console.error(err);
-    } finally {
-      setLoading(false);
+      Toast.show({
+        type: 'error',
+        text1: 'Verification Failed',
+        text2: err?.response?.data?.message || 'Something went wrong',
+      });
     }
   };
-
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Image source={require('../assets/Images/logo.png')} style={styles.logo} />

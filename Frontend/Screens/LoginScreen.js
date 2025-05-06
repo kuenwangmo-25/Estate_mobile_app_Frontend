@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext,useEffect } from 'react';
 import {
   ScrollView,
   Text,
@@ -9,54 +9,120 @@ import {
   Image,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import jwt_decode from "jwt-decode";
+import AuthGlobal from '../Context/store/AuthGlobal';
 import baseURL from '../assets/common/baseUrl';
 import axios from 'axios';
+import Toast from 'react-native-toast-message';
 
 const LoginScreen = ({ navigation }) => {
+
+  const context = useContext(AuthGlobal);
+
+  // useEffect(() => {
+  //   console.log("Authenticated:", context.stateUser.isAuthenticated);
+
+  
+  //   if (context.stateUser.isAuthenticated === true) {
+  //     if (navigation) {
+  //       navigation.navigate("Home"); // or the screen you want to navigate to
+  //     }    }
+  // }, [context.stateUser.isAuthenticated,navigation]);
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [secureText, setSecureText] = useState(true); // Declare state for password visibility
+
+  const { stateUser, dispatch } = useContext(AuthGlobal); // Access context state and dispatch
 
   const validateEmail = (email) => {
     const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
     return regex.test(email);
   };
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!email || !password) {
-      setError('Please fill in your credential');
-      setTimeout(() => setError(''), 1000);
+      Toast.show({
+        type: 'error',
+        text1: 'Missing Fields',
+        text2: 'Please fill in your credentials',
+      });
       return;
     }
-
+  
     if (!validateEmail(email)) {
-      setError('Please enter a valid email address');
-      setTimeout(() => setError(''), 1000);
+      Toast.show({
+        type: 'error',
+        text1: 'Invalid Email',
+        text2: 'Please enter a valid email address',
+      });
       return;
     }
+  
+    try {
+      const response = await axios.post(`${baseURL}/login`, {
+        email,
+        password,
+      });
+      console.log(response.data.status)
+      if (response.data.status === 'success') {
 
-    setError('');
-    console.log('Logging in with:', email, password);
-    navigation.replace('Home');
+        const token = response.data.token;
+        await AsyncStorage.setItem('jwt', token);
+        const decoded = jwt_decode(token);
+        console.log(decoded)
+  
+        // Dispatch login success to context
+        dispatch({
+          type: 'LOGIN_SUCCESS',
+          payload: decoded, // or response.data.user if available
+        });
+
+  
+        Toast.show({
+          type: 'success',
+          text1: 'Login Successful',
+          text2: 'Welcome back!',
+        });
+        navigation.navigate("Home");  // Navigate right after login
+
+  
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: 'Login Failed',
+          text2: 'Invalid credentials',
+        });
+      }
+  
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'Login Failed',
+        text2: error?.response?.data?.message || 'Incorrect email or password',
+        
+      });
+    }
   };
-
+  
   const handleForgotPassword = () => {
-    navigation.navigate('FogotPassword');
+    navigation.navigate('ForgotPassword');
   };
 
   const handleSignUp = () => {
     navigation.navigate('Register');
   };
 
+  const toggleSecureText = () => setSecureText(!secureText); // Toggle function
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
-     
       <Image source={require('../assets/Images/logo.png')} style={styles.logo} />
 
-     
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-     
       <View style={styles.inputContainer}>
         <Icon name="envelope" size={20} color="#aaa" style={styles.icon} />
         <TextInput
@@ -69,7 +135,6 @@ const LoginScreen = ({ navigation }) => {
         />
       </View>
 
-      
       <View style={styles.inputContainer}>
         <Icon name="lock" size={20} color="#aaa" style={styles.icon} />
         <TextInput
@@ -77,16 +142,21 @@ const LoginScreen = ({ navigation }) => {
           value={password}
           onChangeText={(text) => setPassword(text)}
           style={styles.input}
-          secureTextEntry
+          secureTextEntry={secureText} // Bind to secureText state
         />
+        <TouchableOpacity onPress={toggleSecureText} style={styles.iconToggle}>
+          <Icon
+            name={secureText ? 'eye-slash':'eye' }
+            size={20}
+            color="#aaa"
+          />
+        </TouchableOpacity>
       </View>
 
-    
       <TouchableOpacity onPress={handleForgotPassword}>
         <Text style={styles.forgotText}>Forgot Password?</Text>
       </TouchableOpacity>
 
-     
       <View style={styles.signupContainer}>
         <Text style={styles.signupText}>Don't have an account?</Text>
         <TouchableOpacity onPress={handleSignUp}>
@@ -94,7 +164,6 @@ const LoginScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
-     
       <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
         <Text style={styles.loginButtonText}>Login</Text>
       </TouchableOpacity>
@@ -116,12 +185,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     resizeMode: 'contain',
   },
-  // errorText: {
-  //   color: 'red',
-  //   marginBottom: 10,
-  //   fontSize: 14,
-  //   fontWeight: '500',
-  // },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -129,7 +192,6 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
     borderRadius: 8,
     paddingHorizontal: 25,
-    // paddingVertical: 15,
     marginVertical: 15,
     width: '100%',
   },
@@ -143,7 +205,7 @@ const styles = StyleSheet.create({
   forgotText: {
     alignSelf: 'flex-end',
     marginTop: 5,
-    color: '#097969	rgb(9, 121, 105)',
+    color: '#097969',
     fontSize: 13,
   },
   signupContainer: {
@@ -157,14 +219,14 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   signupLink: {
-    color: '#097969	rgb(9, 121, 105)',
+    color: '#097969',
     fontSize: 13,
     fontWeight: 'bold',
   },
   loginButton: {
     marginTop: 30,
     width: '50%',
-    backgroundColor: '#E3963E	rgb(227, 150, 62)',
+    backgroundColor: '#E3963E',
     borderRadius: 8,
     alignItems: 'center',
     paddingVertical: 15,

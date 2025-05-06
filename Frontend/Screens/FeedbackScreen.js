@@ -1,53 +1,105 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image,Pressable, KeyboardAvoidingView, ScrollView, Keyboard, Platform  } from 'react-native';
 import Header from '../Shared/Header';
+import baseURL from '../assets/common/baseUrl';
+import axios from 'axios';
+import Toast from 'react-native-toast-message';
+
 
 const FeedbackScreen = ({ navigation }) => {
-  const [feedback, setFeedback] = useState('');
+  console.log('handleSubmit called');
 
-  const handleSubmit = () => {
-    console.log('Feedback submitted:', feedback);
-    setFeedback('');
+   const [feedback, setFeedback] = useState('');
+   console.log('Current feedback:', feedback);  // Log feedback before submission
+
+  const handleSubmit = async () => {
+
+    if (!feedback.trim()) {
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Feedback cannot be empty.',
+      });
+      return;
+    }
+
+    try {
+      console.log(feedback)
+      const response = await axios.post(`${baseURL}/feedback`, {
+        Feedback:feedback
+      });
+      console.log('Response:', response);
+
+
+      if (response.status === 200) {
+        Toast.show({
+          type: 'success',
+          text1: 'Success',
+          text2: 'Feedback submitted successfully!',
+        });
+        setFeedback('');
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: 'Failed to submit feedback.',
+        });
+      }
+    } catch (error) {
+      console.error('Error submitting feedback:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Could not connect to the server.',
+      });
+    }
   };
 
+
   return (
-    <View style={styles.container}>
-      <Header 
-        navigation={navigation} 
-        title="Feedback" 
-      />
-
-      <Image
-        source={require('../assets/Images/feedback.png')} // Replace with your image path
-        style={styles.image}
-        resizeMode="contain"
-      />
-
-      <View style={styles.formContainer}>
-        {/* Title with lines on both sides */}
-        <View style={styles.titleContainer}>
-          <View style={styles.line}></View>
-          <Text style={styles.title}>Feedback</Text>
-          <View style={styles.line}></View>
+    <KeyboardAvoidingView
+    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    style={{ flex: 1 }}
+  >
+    <Pressable style={{ flex: 1 }} onPress={Keyboard.dismiss}>
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        <View style={styles.container}>
+          <Header navigation={navigation} title="Feedback" />
+  
+          <Image
+            source={require('../assets/Images/feedback.png')}
+            style={styles.image}
+            resizeMode="contain"
+          />
+  
+          <View style={styles.formContainer}>
+            <View style={styles.titleContainer}>
+              <View style={styles.line}></View>
+              <Text style={styles.title}>Feedback</Text>
+              <View style={styles.line}></View>
+            </View>
+  
+            <Text style={styles.subtitle}>
+              Kindly Provide Your Feedback Here!
+            </Text>
+  
+            <TextInput
+              style={styles.textInput}
+              placeholder="Add Feedback"
+              multiline
+              value={feedback}
+              onChangeText={setFeedback}
+            />
+  
+            <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+              <Text style={styles.submitText}>Submit</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-
-        <Text style={styles.subtitle}>
-          Kindly Provide Your Feedback Here!
-        </Text>
-
-        <TextInput
-          style={styles.textInput}
-          placeholder="Descriptions"
-          multiline
-          value={feedback}
-          onChangeText={setFeedback}
-        />
-
-        <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-          <Text style={styles.submitText}>Submit</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+      </ScrollView>
+    </Pressable>
+  </KeyboardAvoidingView>
+  
   );
 };
 

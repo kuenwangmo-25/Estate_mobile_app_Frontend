@@ -9,11 +9,30 @@ import {
   Dimensions,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import AuthGlobal from '../Context/store/AuthGlobal';
 // Get screen dimensions
 const { width, height } = Dimensions.get("window");
 
 const HomeScreen = ({ navigation }) => {
+
+  const handleLogout = async () => {
+    console.log('Logging out...');
+    const startTime = Date.now();
+  
+    try {
+      await AsyncStorage.removeItem('jwt');
+      console.log('Token removed');
+      console.log('Time taken for AsyncStorage operation:', Date.now() - startTime);
+    } catch (error) {
+      console.error('Error removing token:', error);
+    }
+  
+    dispatch({ type: 'LOGOUT' });
+    setTimeout(() => {
+      navigation.navigate('Login'); // Navigate to Login after logout
+    }, 100);  };
+  
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -33,7 +52,7 @@ const HomeScreen = ({ navigation }) => {
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => navigation.navigate("Login")}
+            onPress={handleLogout}
             style={styles.logoutContainer}
           >
             <Text style={styles.logoutText}>Logout</Text>

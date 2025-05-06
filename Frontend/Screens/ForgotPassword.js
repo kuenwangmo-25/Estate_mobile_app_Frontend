@@ -10,19 +10,72 @@ import {
 import Icon from 'react-native-vector-icons/FontAwesome';
 import FormContainer from '../Shared/FormContainer';
 import Input from '../Shared/Input';
+import Toast from 'react-native-toast-message'; // Make sure this is imported at the top
+import axios from 'axios';
+import baseURL from '../assets/common/baseUrl';
 
 const FogotPassword = ({ navigation }) => {
+
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
 
-  const handleConfirm = () => {
-    if (email.trim() === '') {
-      setError('Please enter your email');
-      return;
-    }
+  const validateEmail = (email) => {
+    const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+    return regex.test(email);
+  };
 
-    setError('');
-    navigation.navigate('DefaultPassword');
+  const handleConfirm = async() => {
+    if (email.trim() === '') {
+          Toast.show({
+            type: 'error',
+            text1: 'Missing Email',
+            text2: 'Please enter your email',
+          });
+          return;
+       }
+
+    if (!validateEmail(email)) {
+          Toast.show({
+            type: 'error',
+            text1: 'Invalid Email',
+            text2: 'Please enter a valid email address',
+          });
+          return;
+     }
+
+     try {
+      const response = await axios.post(`${baseURL}/register`, {
+        email : email,
+      });
+      console.log(response.data)
+
+      if (response.data.status === 'success') {
+        Toast.show({
+          type: 'success',
+          text1: 'OTP Sent',
+          text2: 'Please check your email',
+        });
+        navigation.navigate('DefaultPassword', { email }); // Pass email to OTP screen
+      }
+    } catch (error) {
+
+      const errorMessage = error?.response?.data?.message;
+      console.error(error);
+
+      if (errorMessage === 'User not Registered by the Admin') {
+        Toast.show({
+          type: 'error',
+          text1: 'Access Denied',
+          text2: 'You must be registered by an admin to proceed.',
+        });
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: errorMessage || 'Something went wrong',
+        });
+      }
+    }
   };
 
   return (
@@ -30,11 +83,9 @@ const FogotPassword = ({ navigation }) => {
       <Image source={require('../assets/Images/logo.png')} style={styles.logo} />
 
       <Text style={styles.infoText}>
-        Make sure your email is already registered in the
+        Make sure your email is already registered 
       </Text>
-      <Text style={styles.infoText}>
-        Estate admin system
-      </Text>
+     
 
       <FormContainer style={styles.formContainer}>
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
