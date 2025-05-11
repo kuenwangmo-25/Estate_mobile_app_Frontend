@@ -1,13 +1,7 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  FlatList,
-  StyleSheet,
-  TextInput,
-  ScrollView,
-} from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import Header from '../Shared/Header1';
 
 const notifications = [
@@ -32,18 +26,20 @@ const NotificationScreen = ({ navigation }) => {
   );
 
   return (
-    <View style={styles.container}>
+    <ScrollView
+      contentContainerStyle={styles.container}
+      showsVerticalScrollIndicator={false}
+    >
       <View style={styles.headerWrapper}>
         <Header navigation={navigation} />
       </View>
 
-
       <ScrollView
-        data={filteredNotifications}
-        keyExtractor={(item) => item.id}
         contentContainerStyle={styles.notificationList}
-        renderItem={({ item, index }) => (
-          <View style={styles.notificationBox}>
+        showsVerticalScrollIndicator={false}
+      >
+        {filteredNotifications.map((item, index) => (
+          <View style={styles.notificationBox} key={item.id}>
             {(index === 0 || notifications[index - 1].date !== item.date) && (
               <Text style={styles.dateHeader}>{item.date}</Text>
             )}
@@ -55,9 +51,9 @@ const NotificationScreen = ({ navigation }) => {
               </View>
             </View>
           </View>
-        )}
-      />
-    </View>
+        ))}
+      </ScrollView>
+    </ScrollView>
   );
 };
 
@@ -65,34 +61,24 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f1f2f6',
-    paddingHorizontal: 20,
+    paddingHorizontal: wp(5), // Responsive padding
   },
   headerWrapper: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    paddingHorizontal: 20,
-    paddingTop: 40,
-    paddingBottom: 10,
+    top: hp(4), // Responsive position for header
+    left: wp(5),
+    right: wp(5),
+    paddingTop: hp(3),
     zIndex: 10,
   },
-  searchInput: {
-    backgroundColor: '#fff',
-    padding: 10,
-    borderRadius: 8,
-    marginBottom: 16,
-    borderColor: '#ddd',
-    borderWidth: 1,
-  },
   notificationList: {
-    marginTop: 120,
-    paddingBottom: 20,
+    marginTop: hp(15), // Adjusted top margin for header
+    paddingBottom: hp(3),
   },
   notificationBox: {
-    marginBottom: 15,
-    paddingVertical: 10,
-    paddingHorizontal: 15,
+    marginBottom: hp(2),
+    paddingVertical: hp(1.5),
+    paddingHorizontal: wp(4),
     borderRadius: 8,
     backgroundColor: '#FFFFFF',
     borderWidth: 2,
@@ -102,32 +88,31 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 5,
     width: '100%',
-    alignSelf: 'stretch',
   },
   dateHeader: {
-    fontSize: 16,
+    fontSize: wp(4.5), // Responsive font size
     fontWeight: 'bold',
     color: '#E3963E',
-    marginBottom: 5,
+    marginBottom: hp(1),
   },
   notificationContent: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   icon: {
-    marginRight: 10,
+    marginRight: wp(4),
   },
   textContainer: {
     flex: 1,
   },
   notificationTitle: {
-    fontSize: 16,
+    fontSize: wp(4.2), // Responsive font size
     fontWeight: 'bold',
     color: '#333',
   },
   notificationDescription: {
     color: '#555',
-    fontSize: 14,
+    fontSize: wp(3.5), // Responsive font size
   },
 });
 

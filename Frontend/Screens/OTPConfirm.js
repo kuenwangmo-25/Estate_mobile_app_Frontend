@@ -1,13 +1,8 @@
 import React, { useState } from 'react';
-import {
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Image,
-  View,
-} from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome5'; // Import FontAwesome5
+import { ScrollView, Text, TouchableOpacity, StyleSheet, Image, View } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome5';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import FormContainer from '../Shared/FormContainer';
 import Input from '../Shared/Input';
 
@@ -25,7 +20,11 @@ const OTPConfirmScreen = ({ navigation }) => {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <KeyboardAwareScrollView
+      contentContainerStyle={styles.container}
+      enableOnAndroid={true}
+      extraScrollHeight={hp(10)} // Adjust the space when keyboard is visible
+    >
       <Image source={require('../assets/Images/logo.png')} style={styles.logo} />
 
       <FormContainer>
@@ -36,9 +35,7 @@ const OTPConfirmScreen = ({ navigation }) => {
           Estate admin system
         </Text>
 
-
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
-
 
         <Input
           placeholder="Enter OTP"
@@ -56,14 +53,13 @@ const OTPConfirmScreen = ({ navigation }) => {
           inputStyle={styles.input}
         />
 
-
         <View style={styles.button}>
           <TouchableOpacity onPress={handleConfirm}>
             <Text style={styles.buttonText}>Confirm</Text>
           </TouchableOpacity>
         </View>
       </FormContainer>
-    </ScrollView>
+    </KeyboardAwareScrollView>
   );
 };
 
@@ -73,52 +69,55 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 16,
+    padding: wp(5), // Responsive padding
   },
   logo: {
-    width: 200,
-    height: 300,
-    marginBottom: -50,
-    marginTop: 40,
+    width: wp(50), // Responsive width
+    height: wp(50), // Responsive height
+    marginBottom: hp(-5), // Adjusted for better position
+    marginTop: hp(5), // Responsive margin
     resizeMode: 'contain',
   },
   infoText: {
     textAlign: 'center',
-    marginVertical: 5, // Reduced vertical margin to bring text closer
-    fontSize: 14,
+    marginVertical: hp(1), // Reduced vertical margin for better spacing
+    fontSize: wp(4), // Responsive font size
     color: '#333',
-    marginRight:"10%"
+    marginRight: "10%",
   },
-
-
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#ddd',
     borderRadius: 8,
-    paddingHorizontal: 25,  // Reduced padding horizontally to make the box larger
-    marginVertical: 15,
-    width: '90%',          // Increased the width to take up the full width of the screen
-  
+    paddingHorizontal: wp(5),  // Responsive padding
+    marginVertical: hp(2),     // Responsive margin
+    width: wp(80),             // Responsive width
   },
   input: {
     flex: 1,
-    height: 50,
+    height: hp(6), // Responsive height
   },
   button: {
-    width: '50%',
-    backgroundColor: '#E3963E	rgb(227, 150, 62)',
+    width: wp(50), // Responsive width
+    backgroundColor: '#E3963E',
     borderRadius: 8,
     alignItems: 'center',
-    paddingVertical: 15,
+    paddingVertical: hp(2), // Responsive padding
     alignSelf: 'center',
-    marginTop: 30,
+    marginTop: hp(3), // Responsive margin
   },
   buttonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: wp(4.5), // Responsive font size
     fontWeight: 'normal',
+  },
+  errorText: {
+    color: 'red',
+    textAlign: 'center',
+    fontSize: wp(4), // Responsive font size
+    marginBottom: hp(2), // Responsive margin
   },
 });
 

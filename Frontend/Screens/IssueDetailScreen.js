@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet, Image, ScrollView } from 'react-native';
 import Header from '../Shared/Header';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 export default function IssueDetailScreen({ route, navigation }) {
   const { issue } = route.params || {};
@@ -9,10 +10,10 @@ export default function IssueDetailScreen({ route, navigation }) {
   const date = issue?.date || '20/05/2025';
   const location = issue?.location || 'Block P';
   const status = issue?.status || 'Pending';
-  const image =  issue?.image || require('../assets/Images/leakage.png');
+  const image = issue?.image || require('../assets/Images/leakage.png');
 
   return (
-    <View style={styles.screen}>
+    <ScrollView contentContainerStyle={styles.screen}>
       <Header navigation={navigation} />
 
       <Image
@@ -56,7 +57,7 @@ export default function IssueDetailScreen({ route, navigation }) {
           <Text style={styles.value}>{status}</Text>
         </View>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -64,63 +65,62 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: '#F5F5F5',
+    paddingBottom: hp(3), // Adds some padding at the bottom for better scroll experience
   },
   image: {
     width: '100%',
-    height: 400,
-    marginBottom: 10,
+    height: hp(40), // Responsive height for image
+    marginBottom: hp(2), // Responsive margin below the image
   },
   card: {
     backgroundColor: '#FFFFFF',
     width: '100%',
-    height: '60%',
     borderRadius: 10,
-    padding: 25,
+    padding: wp(6), // Responsive padding
     alignItems: 'flex-start',
     elevation: 3,
-    position: 'absolute',
-    bottom: 0,
+    marginTop: -hp(20), // Pull the card upwards slightly to overlay over the image
   },
   categoryContainer: {
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 16,
+    marginBottom: hp(2), // Responsive margin
   },
   line: {
     width: '20%',
     height: 3,
-    backgroundColor: '#097969	rgb(9, 121, 105)',
-    marginHorizontal: 10,
+    backgroundColor: '#097969',
+    marginHorizontal: wp(2), // Responsive margin
   },
   categoryText: {
-    color: '#E3963E	rgb(227, 150, 62)E',
+    color: '#E3963E',
     fontWeight: 'bold',
-    fontSize: 28,
+    fontSize: wp(7), // Responsive font size
   },
   detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 12,
+    marginBottom: hp(2), // Responsive margin between rows
     alignItems: 'center',
   },
   label: {
     fontWeight: 'bold',
     color: '#555',
-    fontSize: 18,
-    marginBottom: 4,
+    fontSize: wp(4.5), // Responsive font size
+    marginBottom: hp(0.5),
     width: '40%',
   },
   value: {
-    fontSize: 15,
+    fontSize: wp(4), // Responsive font size
     color: '#333',
     width: '60%',
   },
   imagePreviewContainer: {
     width: '100%',
-    height: 150,
-    marginVertical: 12,
+    height: hp(20), // Responsive height for image preview container
+    marginVertical: hp(2), // Responsive margin
     borderRadius: 8,
     overflow: 'hidden',
     alignItems: 'center',

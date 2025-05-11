@@ -1,12 +1,7 @@
 import React, { useState } from 'react';
-import {
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Image,
-  View,
-} from 'react-native';
+import { Text, TouchableOpacity, StyleSheet, Image, View } from 'react-native';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen'; // Responsive screen utility
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'; // Import KeyboardAwareScrollView
 import Icon from 'react-native-vector-icons/FontAwesome5'; // Import FontAwesome5
 import FormContainer from '../Shared/FormContainer';
 import Input from '../Shared/Input';
@@ -25,7 +20,10 @@ const ConfirmPassword = ({ navigation }) => {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <KeyboardAwareScrollView 
+      contentContainerStyle={styles.container} 
+      keyboardShouldPersistTaps="handled" // Ensures tapping outside the keyboard closes it
+    >
       <Image source={require('../assets/Images/logo.png')} style={styles.logo} />
 
       <FormContainer>
@@ -36,9 +34,7 @@ const ConfirmPassword = ({ navigation }) => {
           Estate admin system
         </Text>
 
-
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
-
 
         <Input
           placeholder="Password"
@@ -49,13 +45,12 @@ const ConfirmPassword = ({ navigation }) => {
           keyboardType="numeric"
           icon={
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Icon name="key" size={16} color="#aaa" style={{ marginRight: 5 }} />
+              <Icon name="key" size={16} color="#aaa" style={{ marginRight: wp(2) }} />
             </View>
           }
           containerStyle={styles.inputContainer}
           inputStyle={styles.input}
         />
-
 
         <View style={styles.button}>
           <TouchableOpacity onPress={handleConfirm}>
@@ -63,65 +58,65 @@ const ConfirmPassword = ({ navigation }) => {
           </TouchableOpacity>
         </View>
       </FormContainer>
-    </ScrollView>
+    </KeyboardAwareScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    backgroundColor:'#FFFFFF',
-  // This moves the content towards the top
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
-    padding: 16,
-  
+    padding: wp(5), // Responsive padding
+    marginTop: hp(3), // Responsive margin top
   },
   logo: {
-    width: 200,
-    height: 200,
-    marginTop: 40,
-    marginBottom: 20,
+    width: wp(50), // Responsive width
+    height: wp(50), // Responsive height
+    marginTop: hp(5), // Responsive margin top
+    marginBottom: hp(2), // Responsive margin bottom
     resizeMode: 'contain',
   },
   infoText: {
     textAlign: 'center',
-    marginVertical: 5, // Reduced vertical margin to bring text closer
-    fontSize: 14,
+    marginVertical: hp(1), // Responsive vertical margin
+    fontSize: wp(4), // Responsive font size
     color: '#333',
-    marginRight:"10%"
+    marginRight: wp(10), // Responsive margin
   },
-
-
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#ddd',
-    borderRadius: 8,
-    paddingHorizontal: 25,
-    // paddingVertical: 15,
-    marginVertical: 15,
+    borderRadius: wp(2), // Responsive border radius
+    paddingHorizontal: wp(6), // Responsive padding
+    marginVertical: hp(2), // Responsive margin
     width: '90%',
   },
   input: {
     flex: 1,
-
-    height: 50,
+    height: hp(7), // Responsive height
   },
   button: {
-    marginTop: 30,
+    marginTop: hp(3), // Responsive margin top
     width: '50%',
-    backgroundColor: '#E3963E	rgb(227, 150, 62)',
-    borderRadius: 8,
+    backgroundColor: '#E3963E',
+    borderRadius: wp(2), // Responsive border radius
     alignItems: 'center',
-    paddingVertical: 15,
-    alignSelf: 'center', // This will center the button horizontally
+    paddingVertical: hp(2), // Responsive padding
+    alignSelf: 'center',
   },
-
   buttonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: wp(4.5), // Responsive font size
     fontWeight: 'normal',
+  },
+  errorText: {
+    fontSize: wp(4), // Responsive font size
+    color: '#ff0000',
+    textAlign: 'center',
+    marginVertical: hp(2), // Responsive margin
   },
 });
 

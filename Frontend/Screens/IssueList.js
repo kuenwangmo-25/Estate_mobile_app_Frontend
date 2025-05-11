@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Header from '../Shared/Header1'; // Import your Header component
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 const issues = [
   { id: '1', category: 'Electric', title: 'Switch not working', date: 'Today' },
@@ -59,7 +60,7 @@ export default function IssueListScreen({ navigation }) {
   );
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <Header navigation={navigation} />
 
       <FlatList
@@ -68,65 +69,65 @@ export default function IssueListScreen({ navigation }) {
         renderItem={({ item: date }) => renderSection({ date, issues: groupedIssues[date] })}
         contentContainerStyle={styles.listContent}  // Add space between header and content
       />
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { 
     flex: 1, 
-    padding: 16, 
+    padding: wp(4),  // Responsive padding
     backgroundColor: '#f1f2f6',  // Light background color for the container
   },
   card: {
     backgroundColor: '#fff',
-    padding: 12,
+    padding: wp(3),  // Responsive padding
     borderRadius: 8,
     elevation: 3,  // Added elevation for subtle shadow
-    marginBottom: 12,  // Added bottom margin between cards
+    marginBottom: wp(4),  // Added bottom margin between cards
   },
   categoryWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,  // Spacing between icon and title
+    marginBottom: wp(2),  // Spacing between icon and title
   },
   iconBox: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    width: wp(8),  // Responsive icon box width
+    height: wp(8),  // Responsive icon box height
+    borderRadius: wp(4),  // Responsive radius for the icon box
     backgroundColor: '#E3963E',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 10,
+    marginRight: wp(3),  // Responsive margin right
   },
   category: {
     fontWeight: 'bold',
-    fontSize: 18,
+    fontSize: wp(4.5),  // Responsive font size
     color: '#333',  // Dark color for category text
   },
   title: {
-    fontSize: 16,
+    fontSize: wp(4),  // Responsive font size
     color: '#555',  // Lighter color for title text
   },
   separator: {
-    height: 12,  // Adds space between the items
+    height: wp(3),  // Adds space between the items
   },
   dateHeader: {
     backgroundColor: '#f2f2f2',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+    paddingVertical: wp(2),  // Responsive padding
+    paddingHorizontal: wp(4),  // Responsive padding
     borderRadius: 5,
-    marginBottom: 5,
+    marginBottom: wp(2),
   },
   dateText: {
     fontWeight: 'bold',
-    fontSize: 16,
+    fontSize: wp(4),  // Responsive font size
     color: '#E3963E',
   },
   sectionWrapper: {
-    marginBottom: 20,  // Adds space between sections
+    marginBottom: wp(5),  // Adds space between sections
   },
   listContent: {
-    marginTop: 80,  // Adjusted space between header and list content (can be tweaked)
+    paddingTop: hp(4),  // Adds space between header and list content (adjust as needed)
   },
 });
