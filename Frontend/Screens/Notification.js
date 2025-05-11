@@ -5,6 +5,7 @@ import {
   FlatList,
   StyleSheet,
   TextInput,
+  ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Header from '../Shared/Header1';
@@ -37,7 +38,7 @@ const NotificationScreen = ({ navigation }) => {
       </View>
 
 
-      <FlatList
+      <ScrollView
         data={filteredNotifications}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.notificationList}
