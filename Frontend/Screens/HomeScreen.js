@@ -11,10 +11,13 @@ import {
 import Icon from "react-native-vector-icons/FontAwesome";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AuthGlobal from '../Context/store/AuthGlobal';
+import { Alert } from 'react-native';
+
 // Get screen dimensions
 const { width, height } = Dimensions.get("window");
 
 const HomeScreen = ({ navigation }) => {
+
 
   const handleLogout = async () => {
     console.log('Logging out...');
@@ -32,6 +35,38 @@ const HomeScreen = ({ navigation }) => {
     setTimeout(() => {
       navigation.navigate('Login'); // Navigate to Login after logout
     }, 100);  };
+
+    useEffect(() => {
+      // Check if permission is granted
+      messaging()
+        .requestPermission()
+        .then(authStatus => {
+          const enabled = authStatus === messaging.AuthorizationStatus.AUTHORIZED || authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+          if (enabled) {
+            console.log('Notification permissions granted');
+          } else {
+            console.log('Notification permissions denied');
+          }
+        });
+  
+      // Foreground notification handler
+      const unsubscribe = messaging().onMessage(async remoteMessage => {
+        console.log("Foreground notification received:", remoteMessage);
+        
+        // Show alert with notification data
+        Alert.alert(
+          'New Notification', 
+          remoteMessage.notification.body, 
+          [
+            { text: 'Dismiss' }
+          ]
+        );
+      });
+  
+      // Clean up the listener when the component is unmounted
+      return unsubscribe;
+  
+    }, []);
   
   return (
     <View style={styles.container}>
@@ -42,6 +77,7 @@ const HomeScreen = ({ navigation }) => {
       >
         {/* Top Bar */}
         <View style={styles.topBar}>
+
           <TouchableOpacity onPress={() => navigation.navigate("ProfileScreen")}>
             <Icon
               name="user-circle"

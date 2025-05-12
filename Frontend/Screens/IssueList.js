@@ -1,19 +1,16 @@
-import React from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState, useEffect,useContext } from 'react';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import Header from '../Shared/Header1'; // Import your Header component
+import Header from '../Shared/Header1';
+import { useUser } from '../Context/store/Auth';
+import baseURL from '../assets/common/baseUrl';
+import axios from 'axios';
+import AuthGlobal from "../Context/store/AuthGlobal"; // make sure the path is correct
 
-const issues = [
-  { id: '1', category: 'Electric', title: 'Switch not working', date: 'Today' },
-  { id: '2', category: 'Carpentry', title: 'Door is broken', date: 'Today' },
-  { id: '3', category: 'Cleaning', title: 'Request for cleaning the class', date: 'Tuesday' },
-  { id: '4', category: 'Plumbing', title: 'Leakage', date: 'Tuesday' },
-  { id: '5', category: 'Electric', title: 'Switch not working', date: '24/09/2024' },
-];
 
 const groupByDate = (issues) => {
   return issues.reduce((groups, issue) => {
-    const { date } = issue;
+    const date = new Date(issue.dateReported).toISOString().split('T')[0]; // YYYY-MM-DD format
     if (!groups[date]) {
       groups[date] = [];
     }
@@ -22,9 +19,49 @@ const groupByDate = (issues) => {
   }, {});
 };
 
-const groupedIssues = groupByDate(issues);
 
 export default function IssueListScreen({ navigation }) {
+  const context = useContext(AuthGlobal);
+  const userId  =context?.stateUser?.user?.id;
+
+
+  const [groupedIssues, setGroupedIssues] = useState({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchIssues = async () => {
+      try {
+        const response = await axios.get(`${baseURL}/issues/${userId}`);
+        console.log('API Raw Response:', response.data);  // Log the full response
+    
+        // Ensure you're accessing the issues correctly
+        const data = response.data.data;  // Correct path to your issues array
+    
+        if (Array.isArray(data)) {
+          // Sort issues by dateReported in descending order (latest first)
+          const sortedIssues = data.sort((a, b) => new Date(b.dateReported) - new Date(a.dateReported));
+    
+          // Group the sorted issues by date
+          const grouped = groupByDate(sortedIssues);
+          console.log("Grouped Issues:", grouped);  // Check if grouping works
+          setGroupedIssues(grouped);
+        } else {
+          console.log("No issues array in response.");
+        }
+      } catch (error) {
+        console.error('Failed to fetch issues:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    
+
+    if (userId) {
+      fetchIssues();
+    }
+  }, [userId]);
+
   const renderItem = ({ item }) => (
     <TouchableOpacity
       style={styles.card}
@@ -34,9 +71,9 @@ export default function IssueListScreen({ navigation }) {
         <View style={styles.iconBox}>
           <Ionicons name="alert-circle" size={20} color="white" />
         </View>
-        <Text style={styles.category}>{item.category}</Text>
-      </View>
-      <Text style={styles.title}>{item.title}</Text>
+        <Text style={styles.category}>{item.category?.name || 'Unknown'}</Text>
+        </View>
+      <Text style={styles.title}>{item.description}</Text>
     </TouchableOpacity>
   );
 
@@ -51,22 +88,30 @@ export default function IssueListScreen({ navigation }) {
       {renderSectionHeader(date)}
       <FlatList
         data={issues}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item._id}
         renderItem={renderItem}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
       />
     </View>
   );
 
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <Header navigation={navigation} />
+        <ActivityIndicator size="large" color="#E3963E" />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <Header navigation={navigation} />
-
       <FlatList
         data={Object.keys(groupedIssues)}
         keyExtractor={(date) => date}
         renderItem={({ item: date }) => renderSection({ date, issues: groupedIssues[date] })}
-        contentContainerStyle={styles.listContent}  // Add space between header and content
+        contentContainerStyle={styles.listContent}
       />
     </View>
   );
@@ -76,19 +121,19 @@ const styles = StyleSheet.create({
   container: { 
     flex: 1, 
     padding: 16, 
-    backgroundColor: '#f1f2f6',  // Light background color for the container
+    backgroundColor: '#f1f2f6',
   },
   card: {
     backgroundColor: '#fff',
     padding: 12,
     borderRadius: 8,
-    elevation: 3,  // Added elevation for subtle shadow
-    marginBottom: 12,  // Added bottom margin between cards
+    elevation: 3,
+    marginBottom: 12,
   },
   categoryWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,  // Spacing between icon and title
+    marginBottom: 8,
   },
   iconBox: {
     width: 30,
@@ -102,14 +147,14 @@ const styles = StyleSheet.create({
   category: {
     fontWeight: 'bold',
     fontSize: 18,
-    color: '#333',  // Dark color for category text
+    color: '#333',
   },
   title: {
     fontSize: 16,
-    color: '#555',  // Lighter color for title text
+    color: '#555',
   },
   separator: {
-    height: 12,  // Adds space between the items
+    height: 12,
   },
   dateHeader: {
     backgroundColor: '#f2f2f2',
@@ -124,9 +169,9 @@ const styles = StyleSheet.create({
     color: '#E3963E',
   },
   sectionWrapper: {
-    marginBottom: 20,  // Adds space between sections
+    marginBottom: 20,
   },
   listContent: {
-    marginTop: 80,  // Adjusted space between header and list content (can be tweaked)
+    marginTop: 80,
   },
 });

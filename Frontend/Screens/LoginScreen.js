@@ -20,15 +20,7 @@ const LoginScreen = ({ navigation }) => {
 
   const context = useContext(AuthGlobal);
 
-  // useEffect(() => {
-  //   console.log("Authenticated:", context.stateUser.isAuthenticated);
 
-  
-  //   if (context.stateUser.isAuthenticated === true) {
-  //     if (navigation) {
-  //       navigation.navigate("Home"); // or the screen you want to navigate to
-  //     }    }
-  // }, [context.stateUser.isAuthenticated,navigation]);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -80,6 +72,13 @@ const LoginScreen = ({ navigation }) => {
           payload: decoded, // or response.data.user if available
         });
 
+        const fcmToken = await messaging().getToken();
+        if (fcmToken) {
+          await axios.post(`${baseURL}/${decoded.userId}/update-fcm-token`, {
+            fcmToken,
+          });
+        }
+        console.log(fcmToken)
   
         Toast.show({
           type: 'success',

@@ -8,7 +8,10 @@
     "userInterfaceStyle": "light",
     "host": "tunnel",
     "newArchEnabled": true,
-    "platforms": ["android", "ios"],
+    "platforms": [
+      "android",
+      "ios"
+    ],
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -25,7 +28,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.EstateHelpDesk.myapp"
     },
     "web": {
       "favicon": "./assets/favicon.png"

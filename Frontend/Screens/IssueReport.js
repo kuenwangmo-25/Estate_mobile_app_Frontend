@@ -21,6 +21,8 @@ const IssueReport = ({ navigation }) => {
 
   const [open, setOpen] = useState(false);
   const [category, setCategory] = useState(null);
+
+
   const [items, setItems] = useState([
     { label: "Electrical", value: "Electrical" },
     { label: "Plumbing", value: "Plumbing" },
@@ -54,8 +56,11 @@ const IssueReport = ({ navigation }) => {
       <Header navigation={navigation} />
 
       <TouchableOpacity
-        style={styles.issueListButton}
-        onPress={() => navigation.navigate('IssueList')}
+  style={[styles.issueListButton, { zIndex: 10 }]} // Make sure the button is above other elements
+  onPress={() => {
+          console.log("Navigating to IssueList");
+
+          navigation.navigate('IssueList')}}
       >
         <Icon name="exclamation-circle" size={20} color="#097969	rgb(9, 121, 105)" />
         <Text style={styles.issueListText}>Issue List</Text>

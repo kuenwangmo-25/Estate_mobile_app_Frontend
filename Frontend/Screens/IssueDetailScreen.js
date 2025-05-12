@@ -1,15 +1,20 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
 import Header from '../Shared/Header';
-
 export default function IssueDetailScreen({ route, navigation }) {
   const { issue } = route.params || {};
-  const category = issue?.category || 'Plumbing';
-  const description = issue?.description || 'Water leakage detected in the ceiling of the room.';
-  const date = issue?.date || '20/05/2025';
-  const location = issue?.location || 'Block P';
-  const status = issue?.status || 'Pending';
-  const image =  issue?.image || require('../assets/Images/leakage.png');
+
+  // Extract relevant fields from issue
+  const description = issue.description;
+  const date = issue.dateAvail
+    ? new Date(issue.dateAvail).toLocaleDateString()
+    : 'Not available';
+  const location = issue.location;
+  const image = issue.photo
+    ? { uri: issue.photo } // If photo is a URL or base64 path
+    : require('../assets/Images/leakage.png'); // fallback
+  const status = issue.status?.name || 'Pending';
+  const category = issue.category?.name || 'Uncategorized';
 
   return (
     <View style={styles.screen}>
@@ -59,6 +64,7 @@ export default function IssueDetailScreen({ route, navigation }) {
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   screen: {
